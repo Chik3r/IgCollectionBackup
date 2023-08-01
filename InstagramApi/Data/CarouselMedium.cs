@@ -4,7 +4,7 @@ namespace InstagramApi.Data;
 
 public record CarouselMedium(
     string Id,
-    int MediaType,
+    MediaType MediaType,
     ImageVersions ImageVersions,
     int OriginalWidth,
     int OriginalHeight,

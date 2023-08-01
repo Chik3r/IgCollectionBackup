@@ -20,7 +20,7 @@ public record Media(
         [property: JsonPropertyName("is_visual_reply_commenter_notice_enabled")] bool IsVisualReplyCommenterNoticeEnabled,
         [property: JsonPropertyName("commerciality_status")] string CommercialityStatus,
         [property: JsonPropertyName("explore_hide_comments")] bool ExploreHideComments,
-        [property: JsonPropertyName("media_type")] int MediaType,
+        [property: JsonPropertyName("media_type")] MediaType MediaType,
         [property: JsonPropertyName("code")] string Code,
         [property: JsonPropertyName("can_viewer_reshare")] bool CanViewerReshare,
         [property: JsonPropertyName("caption")] TextContent Caption,
