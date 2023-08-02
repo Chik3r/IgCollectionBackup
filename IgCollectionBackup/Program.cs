@@ -8,24 +8,41 @@ class Program {
     public static async Task Main() {
         Instagram ig = new();
         
-        ItemsResponse<Collection> tmp = await ig.GetCollections();
-        AnsiConsole.WriteLine(tmp.ToString());
+        ItemsResponse<Collection> collections = await ig.GetCollections();
+        AnsiConsole.WriteLine(collections.ToString());
 
-        List<string> selectedCollections = AnsiConsole.Prompt(new MultiSelectionPrompt<string>()
+        List<Collection> selectedCollections = AnsiConsole.Prompt(new MultiSelectionPrompt<Collection>()
             .Title("Select collections to backup")
-            .AddChoices(tmp.Items.Select(x => $"{x.CollectionName} [[{x.CollectionMediaCount} items]]")));
+            .AddChoices(collections.Items)
+            .UseConverter(x => $"{x.CollectionName} [{x.CollectionMediaCount} items]".EscapeMarkup()));
+        
+        if (selectedCollections.Count == 0) {
+            AnsiConsole.MarkupLine("[red]No collections selected[/]");
+            return;
+        }
 
-        AnsiConsole.WriteLine(string.Join(" - ", selectedCollections));
-        return;
+        foreach (Collection collection in selectedCollections) {
+            AnsiConsole.WriteLine($"Downloading collection: {collection.CollectionName}");
+            Progress progress = AnsiConsole.Progress();
 
-        foreach (Collection collection in tmp.Items) {
-            ItemsResponse<MediaWrapper> tmp2 = await ig.GetCollectionMedia(collection);
-            Console.WriteLine(tmp2);
+            await progress.StartAsync(async ctx => {
+                ProgressTask task = ctx.AddTask("Download", maxValue: collection.CollectionMediaCount);
 
-            ItemsResponse<MediaWrapper>? nextPage;
-            while ((nextPage = await ig.GetCollectionMediaNextPage(collection, tmp2)) != null) {
-                Console.WriteLine(nextPage);
-            }
+                ItemsResponse<MediaWrapper>? collectionMedia = await ig.GetCollectionMedia(collection);
+                foreach (MediaWrapper mediaWrapper in collectionMedia.Items) {
+                    Media media = mediaWrapper.Media;
+                    string fileName = media.ImageVersions.Candidates[0].Url;
+                    task.Increment(1);
+                }
+
+                while ((collectionMedia = await ig.GetCollectionMediaNextPage(collection, collectionMedia)) != null) {
+                    foreach (MediaWrapper mediaWrapper in collectionMedia.Items) {
+                        Media media = mediaWrapper.Media;
+                        string fileName = media.ImageVersions.Candidates[0].Url;
+                        task.Increment(1);
+                    }
+                }
+            });
         }
     }
 }
