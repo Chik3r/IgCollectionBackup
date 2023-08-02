@@ -4,19 +4,28 @@ using InstagramApi;
 using InstagramApi.Data;
 using Spectre.Console;
 
-Console.WriteLine("Hello, World!");
+class Program {
+    public static async Task Main() {
+        Instagram ig = new();
+        
+        ItemsResponse<Collection> tmp = await ig.GetCollections();
+        AnsiConsole.WriteLine(tmp.ToString());
 
-Instagram ig = new();
+        List<string> selectedCollections = AnsiConsole.Prompt(new MultiSelectionPrompt<string>()
+            .Title("Select collections to backup")
+            .AddChoices(tmp.Items.Select(x => $"{x.CollectionName} [[{x.CollectionMediaCount} items]]")));
 
-ItemsResponse<Collection> tmp = await ig.GetCollections();
-AnsiConsole.WriteLine(tmp.ToString());
+        AnsiConsole.WriteLine(string.Join(" - ", selectedCollections));
+        return;
 
-foreach (Collection collection in tmp.Items) {
-    ItemsResponse<MediaWrapper> tmp2 = await ig.GetCollectionMedia(collection);
-    Console.WriteLine(tmp2);
+        foreach (Collection collection in tmp.Items) {
+            ItemsResponse<MediaWrapper> tmp2 = await ig.GetCollectionMedia(collection);
+            Console.WriteLine(tmp2);
 
-    ItemsResponse<MediaWrapper>? nextPage;
-    while ((nextPage = await ig.GetCollectionMediaNextPage(collection, tmp2)) != null) {
-        Console.WriteLine(nextPage);
+            ItemsResponse<MediaWrapper>? nextPage;
+            while ((nextPage = await ig.GetCollectionMediaNextPage(collection, tmp2)) != null) {
+                Console.WriteLine(nextPage);
+            }
+        }
     }
 }
