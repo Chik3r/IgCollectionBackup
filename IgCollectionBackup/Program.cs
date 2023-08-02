@@ -9,7 +9,13 @@ class Program {
     private const string OutputFolder = "output";
 
     public static async Task Main() {
-        Instagram ig = new();
+        string cookie = AnsiConsole.Ask<string>("Enter your Instagram cookie: ");
+        string asbdId = AnsiConsole.Ask<string>("Enter your Instagram asbdId: ");
+        string crsfToken = AnsiConsole.Ask<string>("Enter your Instagram crsfToken: ");
+        string igAppId = AnsiConsole.Ask<string>("Enter your Instagram igAppId: ");
+        string igWwwClaim = AnsiConsole.Ask<string>("Enter your Instagram igWwwClaim: ");
+        
+        Instagram ig = new(cookie, asbdId, crsfToken, igAppId, igWwwClaim);
         
         ItemsResponse<Collection> collections = await ig.GetCollections();
         AnsiConsole.WriteLine(collections.ToString());
