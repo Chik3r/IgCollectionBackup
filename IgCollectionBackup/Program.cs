@@ -14,11 +14,11 @@ class Program {
         string crsfToken = AnsiConsole.Ask<string>("Enter your Instagram crsfToken: ");
         string igAppId = AnsiConsole.Ask<string>("Enter your Instagram igAppId: ");
         string igWwwClaim = AnsiConsole.Ask<string>("Enter your Instagram igWwwClaim: ");
-        
+        AnsiConsole.WriteLine();
+
         Instagram ig = new(cookie, asbdId, crsfToken, igAppId, igWwwClaim);
         
         ItemsResponse<Collection> collections = await ig.GetCollections();
-        AnsiConsole.WriteLine(collections.ToString());
 
         List<Collection> selectedCollections = AnsiConsole.Prompt(new MultiSelectionPrompt<Collection>()
             .Title("Select collections to backup")
